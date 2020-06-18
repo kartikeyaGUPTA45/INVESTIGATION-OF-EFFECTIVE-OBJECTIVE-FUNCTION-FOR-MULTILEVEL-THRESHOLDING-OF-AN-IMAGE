@@ -1,0 +1,242 @@
+%%%%%%%% New Program of Image multilevel thresholding%%%%%%%%%%%%%%%%%%%%%%%
+
+close all
+clear all
+clc
+% RGB or grayscale image loaded
+%  I = imread('man.tiff');
+ I = imread('lena.tiff');
+% I = imread('airplane.tiff');
+   I=rgb2gray(I);
+% Targeting level is assigned
+thresholds = 5;
+    
+% The histograms are obtained if the image is RGB one for each channel if it is
+% Only grayscale in grayscale.
+if size(I,3) == 1 %grayscale image
+    [n_countR, x_valueR] = imhist(I(:,:,1));
+elseif size(I,3) == 3 %RGB image
+    %Histogram for each RGB channel
+    [n_countR, x_valueR] = imhist(I(:,:,1));
+    [n_countG, x_valueG] = imhist(I(:,:,2));
+    [n_countB, x_valueB] = imhist(I(:,:,3));
+end
+
+
+Nt = size(I,1) * size(I,2); %Total amount of pixels in the image ROWS X COLUMN
+
+Lmax = 256;   %256 different maximum levels are considered in an image (i.e., 0 to 255)
+
+% Distribution of probabilities of each histogram intensity level 0 - 256 
+
+for i = 1:Lmax
+    if size(I,3) == 1 
+        %grayscale image
+        probR(i) = n_countR(i) / Nt;
+    elseif size(I,3) == 3 
+        %RGB image    
+        probR(i) = n_countR(i) / Nt;
+        probG(i) = n_countG(i) / Nt;
+        probB(i) = n_countB(i) / Nt;
+    end
+end
+
+
+%%%%%%%    Here we start  swarm intelligence thing      %%%%%%% %%%%%%%%%%%%%%%%%%%%
+tic
+ for iii = 1:30  % For statistical tests
+
+
+Max_iter  =  100   ; % Maximum numbef of iterations
+popsize   =  60 ;
+dim = thresholds;
+
+ ub = ones(1,1) * Lmax;
+ lb = ones(1,1);
+
+
+Positions = rand(popsize,dim).*(ub-lb)+lb;
+Positions = floor(Positions);
+
+ for si=1:length(Positions)
+       Positions(si,:)=sort(Positions(si,:)); 
+ end
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+
+Alpha_pos=zeros(1,dim);
+Alpha_score= -inf; %change this to -inf for maximization problems
+
+Beta_pos=zeros(1,dim);
+Beta_score= -inf; %change this to -inf for maximization problems
+
+Delta_pos=zeros(1,dim);
+Delta_score= -inf; %change this to -inf for maximization problems
+
+Convergence_curve=zeros(1,Max_iter);
+
+iter=0;% Loop counter
+% fitness = Kapurs(popsize,thresholds,Positions,probR);
+fitness = otsuobj(Positions,thresholds,probR);
+
+  for i=1:size(Positions,1) 
+        % Update Alpha, Beta, and Delta
+        if fitness(i,1) > Alpha_score 
+            Alpha_score = fitness(i,1); % Update alpha
+            Alpha_pos = Positions(i,:);
+        end
+        
+        if fitness(i,1) < Alpha_score && fitness(i,1) > Beta_score 
+            Beta_score = fitness(i,1); % Update beta
+            Beta_pos = Positions(i,:);
+        end
+        
+        if fitness(i,1) < Alpha_score && fitness(i,1) < Beta_score && fitness(i,1) > Delta_score 
+            Delta_score = fitness(i,1); % Update delta
+            Delta_pos = Positions(i,:);
+        end
+  end
+    
+  
+  
+  
+  
+while iter < Max_iter
+
+ 
+    a = 2-iter*((2)/Max_iter); % a decreases linearly fron 2 to 0
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+%%%%%%%%%%%%%%%Predator Phase %%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+ 
+    % Update the Position of search agents including omegas
+    for i=1:size(Positions,1) 
+        for j=1:size(Positions,2)     
+                       
+            r1=rand(); % r1 is a random number in [0,1]
+            r2=rand(); % r2 is a random number in [0,1]
+            
+            A1=2*a*r1-a; % Equation (3.3)
+            C1=2*r2; % Equation (3.4)
+            
+            D_alpha = abs(C1*Alpha_pos(1,j)- Positions(i,j)); % Equation (3.5)-part 1
+            X1 =  Alpha_pos(j)-A1*D_alpha; % Equation (3.6)-part 1
+                       
+            r1=rand();
+            r2=rand();
+            
+            A2=2*a*r1-a; % Equation (3.3)
+            C2=2*r2; % Equation (3.4)
+            
+            D_beta=abs(C2*Beta_pos(1,j)- Positions(i,j)); % Equation (3.5)-part 2
+            X2=Beta_pos(j)-A2*D_beta; % Equation (3.6)-part 2       
+            
+            r1=rand();
+            r2=rand(); 
+            
+            A3=2*a*r1-a; % Equation (3.3)
+            C3=2*r2; % Equation (3.4)
+            
+            D_delta=abs(C3*Delta_pos(1,j)-Positions(i,j)); % Equation (3.5)-part 3
+            X3=Delta_pos(j)-A3*D_delta; % Equation (3.5)-part 3             
+            
+            Positions(i,j) = (X1+X2+X3)/3;    % Equation (3.7)
+            
+            
+        end
+    end
+    
+      
+ for i=1:size(Positions,1)
+     
+         for j=1:dim                 
+             Positions(i,j) = abs(floor(Positions(i,j)));
+             
+            if Positions(i,j) < 1 || Positions(i,j) > 255
+                rndp = randperm(255);                 
+               Positions(i,j)= rndp(i);
+            end
+         
+         end
+  end
+       
+   for i=1:size(Positions,1)
+           Positions (si,:)=sort(Positions(si,:));
+  end
+        
+%   fitness = Kapurs(popsize,thresholds,Positions,probR);
+    fitness = otsuobj(Positions,thresholds,probR);
+    
+         for i=1:size(Positions,1) 
+        % Update Alpha, Beta, and Delta
+        if fitness(i,1) > Alpha_score 
+            Alpha_score = fitness(i,1); % Update alpha
+            Alpha_pos = Positions(i,:);
+        end
+        
+        if fitness(i,1) < Alpha_score && fitness(i,1) > Beta_score 
+            Beta_score = fitness(i,1); % Update beta
+            Beta_pos = Positions(i,:);
+        end
+        
+        if fitness(i,1) < Alpha_score && fitness(i,1) < Beta_score && fitness(i,1) > Delta_score 
+            Delta_score = fitness(i,1); % Update delta
+            Delta_pos = Positions(i,:);
+        end
+         end
+    
+     iter=iter+1;
+    Convergence_curve(iter) = Alpha_score;
+    
+  
+end
+ 
+
+  if size(I,3) == 1
+            BestvalR(iii) = Alpha_score;
+            
+    elseif size(I,3) == 3    
+            BestvalR(iii,:) = xBestR;
+            BestvalG(iii,:) = xBestG;
+            BestvalB(iii,:) = xBestB;
+  end
+    
+
+     xBestR  =   Alpha_pos;
+     
+ end
+ toc
+ 
+if size(I,3) == 1 %grayscale image
+    gBestR = sort(xBestR);
+    Iout = imageGRAY(I,gBestR);
+    Iout2 = mat2gray(Iout);
+    %show results
+    intensity = gBestR %intensity  value of the best elemento (TH)
+     STDR =  std(BestvalR)  %Standar deviation of fitness
+     MEANR = mean(BestvalR) %Mean of fitness
+    PSNRV = PSNR(I, Iout)  %PSNR between original image I and the segmented image Iout
+    Alpha_score               %Best fitness
+    %Show results on images
+    figure
+    imshow(Iout)
+    figure
+    imshow(I)
+    
+    %plot the threslhol over the histogram
+    figure 
+    plot(probR)
+    hold on
+    vmax = max(probR);
+    for i = 1:dim
+        line([intensity(i), intensity(i)],[0 vmax],[1 1],'Color','r','Marker','.','LineStyle','-');
+        %plot(lineas(i,:))
+        hold on
+    end
+    hold off
+    figure
+    plot(Convergence_curve)
+  
+end
