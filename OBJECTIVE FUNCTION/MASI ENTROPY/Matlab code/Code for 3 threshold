@@ -1,0 +1,65 @@
+function obj_val=masi3(Ths,p)
+% Masi Entropy Objective function for two number of thresholds
+% Masi parameter r
+r=-1;
+
+Th=sort(Ths);
+
+t1=round(Th(1));
+t2=round(Th(2));
+t3=round(Th(3));
+
+w0=sum(p(1:t1));          % class probability, w0
+w1=sum(p(t1+1:t2));
+w2=sum(p(t2+1:t3));       % class probability, w1
+w3=1-(w0+w1+w2);             % class probability, w1
+
+
+   % Calculate Entropy for class C0
+    sm=0;
+    if w0>0
+        for i=1:t1
+            if p(i)>0
+                sm=sm+(p(i)/w0)*log(p(i)/w0);
+            end
+        end
+    end
+    E1=(1/(1-r))*log(1-(1-r)*sm);
+
+
+    % Calculate Entropy for class C1
+    sm=0;
+    if w1>0
+        for i=t1+1:t2
+            if p(i)>0
+                sm=sm+(p(i)/w1)*log(p(i)/w1);
+            end
+        end
+    end
+    E2=(1/(1-r))*log(1-(1-r)*sm);
+
+    % Calculate Entropy for class C2
+    sm=0;
+    if w2>0
+        for i=t2+1:t3
+            if p(i)>0
+                sm=sm+(p(i)/w2)*log(p(i)/w2);
+            end
+        end
+    end
+    E3=(1/(1-r))*log(1-(1-r)*sm);
+
+    % Calculate Entropy for class C3
+    sm=0;
+    if w3>0
+        for i=t3+1:256
+            if p(i)>0
+                sm=sm+(p(i)/w3)*log(p(i)/w3);
+            end
+        end
+    end
+    E4=(1/(1-r))*log(1-(1-r)*sm);
+
+    % Total Masi Entropy of the Image I
+    obj_val=E1+E2+E3+E4;
+end
