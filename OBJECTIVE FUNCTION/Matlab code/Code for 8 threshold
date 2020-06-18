@@ -1,0 +1,173 @@
+function [out]=mce8Kartik(t,p,ch)
+t=sort(t);
+%%%%% calculations for class probabilities of the image %%%%%
+    t1=round(t(1));
+    t2=round(t(2));
+    t3=round(t(3));
+    t4=round(t(4));
+    t5=round(t(5));
+    t6=round(t(6));
+    t7=round(t(7));
+    t8=round(t(8));
+   
+    	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    w0  = double(ch(t1)); % class probability, w0
+    w1  = double(ch(t2)-ch(t1));
+    w2  = double(ch(t3)-ch(t2));
+    w3  = double(ch(t4)-ch(t3));
+    w4  = double(ch(t5)-ch(t4));
+    w5  = double(ch(t6)-ch(t5));
+    w6  = double(ch(t7)-ch(t6));
+    w7  = double(ch(t8)-ch(t7));
+    w8  = double(ch(256)-ch(t8));
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+ 
+%%%%%%%%%%%%%%%%Minimum Cross Entropy Calculation%%%%%%%%%%%%%%%%%%%%%%%
+    D=0;
+    for i=1:256
+        D=D+i*p(i)*log(i);
+    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m0=0;
+    if w0>0
+        for i=1:t1
+            m0=m0+i*p(i)/w0;
+        end
+    end
+    
+    D0=0;
+    for i=1:t1                
+        if p(i)>0
+            D0=D0+i*p(i)*log(m0);
+        end
+    end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m1=0;
+    if w1>0
+        for i=t1+1:t2
+            m1=m1+i*p(i)/w1;
+        end
+    end
+    
+    D1=0;
+    for i=t1+1:t2                
+        if p(i)>0
+            D1=D1+i*p(i)*log(m1);
+        end
+    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m2=0;
+    if w2>0
+        for i=t2+1:t3
+            m2=m2+i*p(i)/w2;
+        end
+    end
+    
+    D2=0;
+    for i=t2+1:t3                
+        if p(i)>0
+            D2=D2+i*p(i)*log(m2);
+        end
+    end
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    m3=0;
+    if w3>0
+        for i=t3+1:t4
+            m3=m3+i*p(i)/w3;
+        end
+    end
+    
+    D3=0;
+    for i=t3+1:t4                
+        if p(i)>0
+            D3=D3+i*p(i)*log(m3);
+        end
+    end
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m4=0;
+    if w4>0
+        for i=t4+1:t5
+            m4=m4+i*p(i)/w4;
+        end
+    end
+    
+    D4=0;
+    for i=t4+1:t5                
+        if p(i)>0
+            D4=D4+i*p(i)*log(m4);
+        end
+    end
+    
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m5=0;
+    if w5>0
+        for i=t5+1:t6
+            m5=m5+i*p(i)/w5;
+        end
+    end
+    
+    D5=0;
+    for i=t5+1:t6                
+        if p(i)>0
+            D5=D5+i*p(i)*log(m5);
+        end
+    end
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    m6=0;
+    if w6>0
+        for i=t6+1:t7
+            m6=m6+i*p(i)/w6;
+        end
+    end
+    
+    D6=0;
+    for i=t6+1:t7                
+        if p(i)>0
+            D6=D6+i*p(i)*log(m6);
+        end
+    end
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m7=0;
+    if w7>0
+        for i=t7+1:t8
+            m7=m7+i*p(i)/w7;
+        end
+    end
+    
+    D7=0;
+    for i=t7+1:t8                
+        if p(i)>0
+            D7=D7+i*p(i)*log(m7);
+        end
+    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    m8=0;
+    if w8>0
+        for i=t8+1:256
+            m8=m8+i*p(i)/w8;
+        end
+    end
+    
+    D8=0;
+    for i=t8+1:256                
+        if p(i)>0
+            D8=D8+i*p(i)*log(m8);
+        end
+    end    
+ 
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+
+    %%%% Objective function calculation %%%%
+    %out=D-D0-D1-D2-D3-D4-D5;
+    out=-D0-D1-D2-D3-D4-D5-D6-D7-D8;
+    
+end
+
