@@ -1,0 +1,73 @@
+# Importing necessary libraries 
+
+import math
+import numpy as np
+from matplotlib import pyplot as plt
+from PIL import Image
+
+# Convert an image into Gray scale
+image = Image.open('E:\\lena.tiff').convert("L")
+print(image)
+
+Defining Thresholds
+thresholds=[81,127,171]
+thresholds.append(256)
+thresholds.insert(0,0)
+
+Convert an input into array
+img = np.asarray(image)
+print(img)
+
+Making Histogram
+def Hist(img):
+    row, col = img.shape 
+    y = np.zeros(256,dtype=float)
+    for i in range(0,row):
+        for j in range(0,col):
+             y[img[i,j]] += 1
+    x = np.arange(0,256)
+    plt.bar(x, y, color='b', width=5, align='edge', alpha=0.25)
+    plt.show()
+    return y
+
+h=Hist(img)
+
+Counting number of Pixels
+cnt = 0
+for i in range(0, len(h)):
+    if h[i]>0:
+           cnt += h[i]
+            
+print(cnt)
+
+Finding Probability of an individual Pixel
+prob=[]
+for i in range (len(h)):
+    h[i]=h[i]/cnt
+    prob.append(h[i])
+print(h)
+
+Kapur's Calculation
+SUM=[]
+for i in range(len(thresholds)-1):
+    SUM.append(sum(h[thresholds[i]:thresholds[i+1]]))
+    
+print(SUM)
+w1=[]
+for i in range(len(thresholds)-1):
+    for j in range(thresholds[i],thresholds[i+1]):
+        if prob[j]==0:
+            w1.append(prob[j])
+        else:
+            w1.append((math.log(prob[j]/SUM[i]))*(prob[j]/SUM[i]))
+print(w1)
+
+kapur_entropy=[]
+for i in range(len(thresholds)-1):
+    kapur_entropy.append(-(sum(w1[thresholds[i]:thresholds[i+1]])))
+    
+print(kapur_entropy)
+
+Result
+J=sum(kapur_entropy)
+print(J)
