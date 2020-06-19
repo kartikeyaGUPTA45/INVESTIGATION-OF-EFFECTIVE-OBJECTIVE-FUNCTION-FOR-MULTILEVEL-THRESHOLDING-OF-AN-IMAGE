@@ -46,3 +46,7 @@ Minimum cross-entropy is proposed by Kullback in 1978 under the name divergence.
 
 # BLOG LINK
 https://medium.com/@kartikeyagupta1409/investigation-of-effective-objective-function-for-multilevel-thresholding-of-an-image-7b0b5b1d4ea
+
+
+# VIDEO LINK
+https://youtu.be/OtCCsMGKw0I
