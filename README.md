@@ -25,7 +25,7 @@ This Optimizer is used to maximize or minimize an objective function automatical
 # Peak Signal-to-Noise Ratio(PSNR) :
 It is used to compare image compression quality. It is defined as the ratio between the maximum possible power of an image and the power of corrupting noise.
 
-# Structural SIMilarity (SSIM) index:
+# Structural SiMilarity (SSIM) index:
 It is a method for measuring the similarity between two images. The SSIM index can be viewed as a quality measure of one of the images being compared, provided the other image is regarded as of perfect quality.
 
 # OBJECTIVE FUNCTIONS:
